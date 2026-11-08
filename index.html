@@ -8,19 +8,84 @@
     html, body { height: 100%; margin: 0; }
     body {
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 1rem;
       font-family: system-ui, -apple-system, "Apple SD Gothic Neo", sans-serif;
       background: #f5f5f4;
       color: #1c1917;
     }
-    h1 { font-size: 3rem; font-weight: 600; }
+    h1 { font-size: 3rem; font-weight: 600; margin: 0; }
+    svg { width: min(260px, 70vw); height: auto; overflow: visible; }
+
+    .fur { fill: #f59e0b; }
+    .fur-dark { fill: #d97706; }
+    .ear-in { fill: #fda4af; }
+    .line { stroke: #1c1917; stroke-linecap: round; fill: none; }
+
+    .cat { animation: breathe 3s ease-in-out infinite; transform-origin: 100px 190px; }
+    .tail { fill: none; stroke: #d97706; stroke-width: 14; stroke-linecap: round;
+            transform-origin: 140px 178px; animation: wag 2.4s ease-in-out infinite; }
+    .ear-l { transform-origin: 80px 62px; animation: twitch 5s ease-in-out infinite; }
+    .lids { transform-origin: 100px 92px; animation: blink 4s infinite; }
+
+    @keyframes breathe { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.025); } }
+    @keyframes wag { 0%, 100% { transform: rotate(-14deg); } 50% { transform: rotate(14deg); } }
+    @keyframes twitch { 0%, 88%, 100% { transform: rotate(0); } 92% { transform: rotate(-12deg); } 96% { transform: rotate(4deg); } }
+    @keyframes blink { 0%, 92%, 100% { transform: scaleY(0); } 95% { transform: scaleY(1); } }
+
     @media (prefers-color-scheme: dark) {
       body { background: #1c1917; color: #f5f5f4; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cat, .tail, .ear-l, .lids { animation: none; }
     }
   </style>
 </head>
 <body>
   <h1>Hello, World!</h1>
+
+  <svg viewBox="0 0 200 200" role="img" aria-label="움직이는 고양이">
+    <g class="cat">
+      <path class="tail" d="M140 178 C190 178 195 130 172 118"/>
+      <ellipse class="fur" cx="100" cy="150" rx="46" ry="40"/>
+      <ellipse class="fur-dark" cx="82" cy="188" rx="14" ry="8"/>
+      <ellipse class="fur-dark" cx="118" cy="188" rx="14" ry="8"/>
+
+      <polygon class="fur ear-l" points="66,72 70,32 98,58"/>
+      <polygon class="fur" points="134,72 130,32 102,58"/>
+      <polygon class="ear-in" points="73,62 74,44 88,58"/>
+      <polygon class="ear-in" points="127,62 126,44 112,58"/>
+      <circle class="fur" cx="100" cy="95" r="40"/>
+
+      <ellipse fill="#fff" cx="85" cy="92" rx="9" ry="10"/>
+      <ellipse fill="#fff" cx="115" cy="92" rx="9" ry="10"/>
+      <circle id="pupil-l" cx="85" cy="93" r="5" fill="#1c1917"/>
+      <circle id="pupil-r" cx="115" cy="93" r="5" fill="#1c1917"/>
+      <g class="lids">
+        <ellipse class="fur" cx="85" cy="92" rx="10" ry="11"/>
+        <ellipse class="fur" cx="115" cy="92" rx="10" ry="11"/>
+      </g>
+
+      <polygon fill="#fb7185" points="95,107 105,107 100,113"/>
+      <path class="line" stroke-width="2" d="M100 113 V118 M100 118 Q94 124 88 118 M100 118 Q106 124 112 118"/>
+      <path class="line" stroke-width="1.5" d="M70 108 L48 104 M70 114 L48 118 M130 108 L152 104 M130 114 L152 118"/>
+    </g>
+  </svg>
+
+  <script>
+    // 눈동자가 포인터를 따라간다
+    const pupils = [document.getElementById('pupil-l'), document.getElementById('pupil-r')];
+    const svg = document.querySelector('svg');
+    addEventListener('pointermove', (e) => {
+      const r = svg.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width / 2);
+      const dy = e.clientY - (r.top + r.height * 0.47);
+      const d = Math.hypot(dx, dy) || 1;
+      const k = Math.min(3.5, d / 40) / d;
+      pupils.forEach((p) => p.style.transform = `translate(${dx * k}px, ${dy * k}px)`);
+    });
+  </script>
 </body>
 </html>
